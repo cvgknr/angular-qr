@@ -84,7 +84,9 @@
         inputMode: '=',
         size: '=',
         text: '=',
-        image: '='
+        image: '=',
+        color: '=',
+        background: '='
       },
       controller: 'QrCtrl',
       link: function postlink(scope, element, attrs){
@@ -102,13 +104,15 @@
         scope.SIZE = scope.getSize();
         scope.INPUT_MODE = scope.getInputMode(scope.TEXT);
         scope.canvasImage = '';
+        scope.color = scope.color || '#000';
+        scope.background = scope.background || '#fff';
 
         var draw = function(context, qr, modules, tile){
           for (var row = 0; row < modules; row++) {
             for (var col = 0; col < modules; col++) {
               var w = (Math.ceil((col + 1) * tile) - Math.floor(col * tile)),
                   h = (Math.ceil((row + 1) * tile) - Math.floor(row * tile));
-              context.fillStyle = qr.isDark(row, col) ? '#000' : '#fff';
+              context.fillStyle = qr.isDark(row, col) ? scope.color : scope.background;
               context.fillRect(Math.round(col * tile), Math.round(row * tile), w, h);
             }
           }
@@ -167,6 +171,20 @@
           });
 
           scope.$watch('inputMode', function(value, old){
+            if (value !== old) {
+              scope.INPUT_MODE = scope.getInputMode(scope.TEXT);
+              render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+            }
+          });
+
+          scope.$watch('color', function(value, old){
+            if (value !== old) {
+              scope.INPUT_MODE = scope.getInputMode(scope.TEXT);
+              render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
+            }
+          });
+
+          scope.$watch('background', function(value, old){
             if (value !== old) {
               scope.INPUT_MODE = scope.getInputMode(scope.TEXT);
               render(canvas, scope.TEXT, scope.TYPE_NUMBER, scope.CORRECTION, scope.SIZE, scope.INPUT_MODE);
